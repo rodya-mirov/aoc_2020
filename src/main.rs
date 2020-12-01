@@ -14,6 +14,7 @@ fn main() {
 
     let out: String = match args.get(1).unwrap().as_str() {
         "1a" => day1::run_1a().to_string(),
+        "1b" => day1::run_1b().to_string(),
 
         other => {
             format!("Unrecognized problem number {}", other)
