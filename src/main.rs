@@ -4,6 +4,7 @@ mod day01;
 mod day02;
 mod day03;
 mod day04;
+mod day05;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -28,11 +29,14 @@ fn main() {
         "4a" => day04::run_4a().to_string(),
         "4b" => day04::run_4b().to_string(),
 
+        "5a" => day05::run_5a().to_string(),
+        "5b" => day05::run_5b().to_string(),
+
         other => {
             format!("Unrecognized problem number {}", other)
         }
     };
 
     println!("{}", out);
-    println!("Process took {:.3} seconds", start.elapsed().as_secs_f32());
+    println!("Process took {:.5} seconds", start.elapsed().as_secs_f32());
 }
