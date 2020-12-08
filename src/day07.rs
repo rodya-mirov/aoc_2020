@@ -94,11 +94,13 @@ fn run_7a_with_input(input: &str) -> usize {
 
     let goal_bag = "shiny gold";
 
-    // TODO perf: this would be much much faster with caching
+    let mut cache = HashMap::new();
+
     fn dfs(
         rules: &HashMap<String, HashMap<String, usize>>,
         goal_top: &str,
         goal_contents: &str,
+        cache: &mut HashMap<String, bool>,
     ) -> bool {
         if goal_top == goal_contents {
             return true;
@@ -108,14 +110,27 @@ fn run_7a_with_input(input: &str) -> usize {
         if children.contains_key(goal_contents) {
             return true;
         } else {
-            children.keys().any(|key| dfs(rules, key, goal_contents))
+            for key in children.keys() {
+                if let Some(cached) = cache.get(key) {
+                    if *cached {
+                        return true;
+                    }
+                } else {
+                    let val = dfs(rules, key, goal_contents, cache);
+                    cache.insert(key.to_string(), val);
+                    if val {
+                        return true;
+                    }
+                }
+            }
+            false
         }
     }
 
     rules
         .keys()
         .filter(|k| k.as_str() != goal_bag)
-        .filter(|k| dfs(&rules, k, goal_bag))
+        .filter(|k| dfs(&rules, k, goal_bag, &mut cache))
         .count()
 }
 
@@ -128,18 +143,30 @@ fn run_7b_with_input(input: &str) -> usize {
 
     let goal_bag = "shiny gold";
 
-    // TODO perf: this would be much much faster with caching
-    fn dfs(rules: &HashMap<String, HashMap<String, usize>>, top_bag: &str) -> usize {
+    let mut cache = HashMap::new();
+
+    fn dfs(
+        rules: &HashMap<String, HashMap<String, usize>>,
+        top_bag: &str,
+        cache: &mut HashMap<String, usize>,
+    ) -> usize {
         1 + rules
             .get(top_bag)
             .unwrap()
             .iter()
-            .map(|(kind, count)| count * dfs(rules, kind))
+            .map(|(kind, count)| {
+                if let Some(val) = cache.get(top_bag) {
+                    return *val;
+                }
+                let val = count * dfs(rules, kind, cache);
+                cache.insert(kind.to_string(), val);
+                val
+            })
             .sum::<usize>()
     }
 
     // You don't count the top bag
-    dfs(&rules, goal_bag) - 1
+    dfs(&rules, goal_bag, &mut cache) - 1
 }
 
 pub fn run_7b() -> usize {
